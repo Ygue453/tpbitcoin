@@ -1,5 +1,8 @@
 package tpbitcoin;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import org.bitcoinj.core.*;
 
 import java.io.IOException;
@@ -7,6 +10,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.HexFormat;
 
 public class Explorer {
@@ -68,7 +72,7 @@ public class Explorer {
 
     // TODO
     public String getLatestHash(){
-        return "";
+        return request("q/latesthash");
     }
 
 
@@ -79,7 +83,8 @@ public class Explorer {
      * @return byte array encoding the block
      */
     public byte[] getRawblockFromHash(String hash){
-        return null;
+        String answer = request("rawblock/" + hash + "?format=hex");
+        return hexStringToByte(answer);
     }
 
     // TODO
@@ -92,7 +97,7 @@ public class Explorer {
      */
 	
     public Block getBlockFromHash(NetworkParameters params, String hash){
-        return null;
+        return fromRawblockToBlock(params, getRawblockFromHash(hash));
     }
 
 

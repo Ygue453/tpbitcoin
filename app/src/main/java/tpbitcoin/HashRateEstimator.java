@@ -26,10 +26,19 @@ public class HashRateEstimator {
      * @return : return the hashrate (hash/second)
      */
     public double estimate(){
-        byte[] bytes;
+        byte[] bytes = new byte[0];
         MessageDigest md = Sha256Hash.newDigest();
-        // TODO
-        return 0.0;
+        int nbHTotal = 0;
+        for (int i = 0; i < numberOfTries; i++){
+            int nbTries = 0;
+            long stopTime = System.currentTimeMillis() + duration;
+            while(stopTime > System.currentTimeMillis()){
+                md.digest(bytes);
+                nbTries++;
+            }
+            nbHTotal = nbHTotal+ nbTries;
+        }
+        return nbHTotal/(numberOfTries*(duration/1000));
     }
 
 }

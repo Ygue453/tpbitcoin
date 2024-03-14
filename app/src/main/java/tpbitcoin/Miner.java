@@ -23,6 +23,7 @@ public class Miner {
      */
     // TODO
     private static Block setValidNonce(Block block){
+
         return block;
     }
 

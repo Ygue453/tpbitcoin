@@ -26,15 +26,25 @@ public class App {
 
     public static void main(String[] args) {
 
-        //Q1  hashrate
+        /*//Q1  hashrate
         double localHashrate = new HashRateEstimator(5000,5).estimate();
+        System.out.println(localHashrate/1000000 + " MH/s");
 
-        // Q2: latest  block  from mainet (bitcoin blockchain) and its predecessor
+        */// Q2: latest  block  from mainet (bitcoin blockchain) and its predecessor
         Context context   = new Context(new UnitTestParams()); // required  for working with bitcoinj
         Explorer explorer = new Explorer(); // for interacting with blockchain.info API
+        Block block = explorer.getBlockFromHash(context.getParams(), explorer.getLatestHash());
+        System.out.println("Latest block of the block chain :\nHash : " + block.getHashAsString() + "\nDifficulty : " + block.getDifficultyTarget() + "\nNonce : " + block.getNonce());
         // Q3 Some TXs
+        int counter = 0;
+        for (Transaction transaction : block.getTransactions()){
+            System.out.println(transaction);
+            counter++;
+            if (counter == 5)
+                break;
+        }
 
-        // Q4 Mine a new block
+        /* // Q4 Mine a new block
         Miner miner = new Miner(context.getParams());
         // empty list of tx since creating txs, even fake ones, requires some work
         ArrayList<Transaction> txs = new ArrayList<>();
@@ -57,7 +67,7 @@ public class App {
         }
 
 
-
+*/
     }
 
 
