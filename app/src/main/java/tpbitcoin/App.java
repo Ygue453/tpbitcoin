@@ -8,13 +8,25 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import org.bitcoinj.core.*;
 import org.bitcoinj.params.UnitTestParams;
+import org.bouncycastle.crypto.util.PublicKeyFactory;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
+import java.math.BigInteger;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.security.Key;
+import java.security.PublicKey;
+import java.security.interfaces.ECPublicKey;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -26,15 +38,20 @@ public class App {
 
     public static void main(String[] args) {
 
-        /*//Q1  hashrate
+        //Q1  hashrate
         double localHashrate = new HashRateEstimator(5000,5).estimate();
         System.out.println(localHashrate/1000000 + " MH/s");
 
-        */// Q2: latest  block  from mainet (bitcoin blockchain) and its predecessor
+        //----------------------------------------------------------------------------------------------------------//
+
+        // Q2: latest  block  from mainet (bitcoin blockchain) and its predecessor
         Context context   = new Context(new UnitTestParams()); // required  for working with bitcoinj
         Explorer explorer = new Explorer(); // for interacting with blockchain.info API
         Block block = explorer.getBlockFromHash(context.getParams(), explorer.getLatestHash());
         System.out.println("Latest block of the block chain :\nHash : " + block.getHashAsString() + "\nDifficulty : " + block.getDifficultyTarget() + "\nNonce : " + block.getNonce());
+
+        //----------------------------------------------------------------------------------------------------------//
+
         // Q3 Some TXs
         int counter = 0;
         for (Transaction transaction : block.getTransactions()){
@@ -43,14 +60,58 @@ public class App {
             if (counter == 5)
                 break;
         }
+        //On constate que la première transaction est celle qui donne à la personne, ayant trouvé un bon nombre, les bitcoins.
+        //Celles qui suivent sont les transactions survenues après la création du bloc, on y vois l'expéditeur, le montant en bitcoin et le destinataire
+        
+        //----------------------------------------------------------------------------------------------------------//
 
-        /* // Q4 Mine a new block
+        // Q4 Mine a new block
         Miner miner = new Miner(context.getParams());
         // empty list of tx since creating txs, even fake ones, requires some work
         ArrayList<Transaction> txs = new ArrayList<>();
-        // TODO : mine a new block
+        Block new_block = miner.mine(block, txs, new ECKey().getPubKey());
+        new_block.verifyHeader();
+        System.out.println("passed");
 
+        //----------------------------------------------------------------------------------------------------------//
 
+        // Q5 Accepté ?
+        // Non ce bloc ne peut pas être accepté par le réseaux vu que notre bloc ne contient qu'une seule transaction
+        // (il y a de très très faible chance que les blocs potentiellement crée aient autant ou moins de transactions).
+
+        //----------------------------------------------------------------------------------------------------------//
+
+        //CONSOMMATION ENERGETIQUE
+        
+        //Q6 
+        //La probabilité de miner est : (Niveau de difficulté / 2^256)
+
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create("https://blockchain.info/q/getdifficulty")).build();
+        HttpResponse<String> response = null;
+        try { response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString()); }
+        catch (IOException e) { System.err.println("IO error " + e.getMessage()); }
+        catch (InterruptedException e) { System.err.println("Interrupted " + e.getMessage()); }
+        String pbmine = response.body();
+        int indexOfE = pbmine.indexOf('E');
+        pbmine = pbmine.substring(0, indexOfE);
+
+        System.out.println("pbmine : "+ pbmine); 
+        System.out.println("A chaque hashage on a : " + (Double.parseDouble(pbmine.replace(".", ""))) / (Math.pow(2, 256)) * 100 + " % de chance de miner un bloc");
+        //System.out.println("Moyenne nb_hash pour miner un bloc : " + 1.0 / (Double.parseDouble(pbmine.replace(".", "")) / (Math.pow(2, 256))));
+        //En moyenne il faut calculer 1/Proba de miner = ~1,379332551×10^63 hashs pour miner un nouveau bloc 
+
+        ImpactUtils impactUtils = new ImpactUtils();
+        long hashrate = 638480230061L;
+    
+        BigInteger difficulty = new BigInteger(pbmine.replace(".", ""));
+        //System.out.println(impactUtils.expectedMiningTime(hashrate, difficulty));
+
+        //Q7
+        System.out.println(impactUtils.expectedMiningTime(Long.parseLong(new String(localHashrate + "").replace(".", "")), difficulty));
+        
+        //----------------------------------------------------------------------------------------------------------//
+
+        /*
         System.out.println("\n");
         // Q9/Q10 energy w/ most profitable hardware
         Gson gson = new GsonBuilder()
@@ -69,8 +130,4 @@ public class App {
 
 */
     }
-
-
-
-
 }

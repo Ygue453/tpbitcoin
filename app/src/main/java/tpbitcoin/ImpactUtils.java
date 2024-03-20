@@ -16,7 +16,15 @@ public class ImpactUtils {
      */
     // TODO
     public static long expectedMiningTime(long hashrate, BigInteger difficultyAsInteger){
-        return 1L ;
+        //return 2^32 * (difficultyAsInteger.longValue()/hashrate);
+        /*String miningTime = new String((Math.pow(2, 32) * (difficultyAsInteger.longValue()/hashrate)) + "");
+        int indexOfE = miningTime.indexOf('E');
+        miningTime = miningTime.substring(0, indexOfE);
+        miningTime = miningTime.replace(".", "");
+        return Long.parseLong(miningTime);*/
+        Double proba = (Double.parseDouble(difficultyAsInteger + "") / Math.pow(2, 256));
+        System.out.println(proba);
+        return proba.longValue() * hashrate;
     }
 
     /**

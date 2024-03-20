@@ -5,6 +5,7 @@ import org.bitcoinj.script.ScriptBuilder;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Random;
 
 public class Miner {
     private static int  txCounter;
@@ -23,7 +24,12 @@ public class Miner {
      */
     // TODO
     private static Block setValidNonce(Block block){
-
+        Random random = new Random();
+        block.setNonce(random.nextLong());
+        while(block.getDifficultyTargetAsInteger().compareTo(block.getHash().toBigInteger()) < 0){ 
+            block.setNonce(random.nextLong());
+        }
+        //block.solve();
         return block;
     }
 
@@ -50,8 +56,16 @@ public class Miner {
      */
     // TODO
     public Block mine(Block lastBlock, List<Transaction> txs, byte[] pubKey){
+        Block new_block = lastBlock.cloneAsHeader();
+        Transaction transaction = this.generateCoinbase(params,  pubKey, "0.0002");
+        new_block.addTransaction(transaction);
+        for(Transaction t : txs){
+            new_block.addTransaction(t);
+        }
+        new_block.setDifficultyTarget(EASY_DIFFICULTY_TARGET);
 
-        return null;
+        setValidNonce(new_block);
+        return new_block;
     }
 }
 

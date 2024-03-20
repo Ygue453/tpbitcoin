@@ -70,13 +70,11 @@ public class Explorer {
     }
 
 
-    // TODO
     public String getLatestHash(){
         return request("q/latesthash");
     }
 
 
-    // TODO 
     /**
      * Return the raw bytes of the block whose hash is given as argument
      * @param hash of a valid block contained in bitcoin mainnet
@@ -87,7 +85,6 @@ public class Explorer {
         return hexStringToByte(answer);
     }
 
-    // TODO
     /**
      * Create an instance of bitcoinj.core.Block that correspond to the block
      * whose hash is given.
